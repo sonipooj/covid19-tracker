@@ -13,6 +13,8 @@ import { AppComponent } from './app.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { GoogleMapComponent } from './dashboard/google-map/google-map.component';
 import { GetdataService } from './services/getdata.service';
+import { HeaderComponent } from './header/header.component';
+import { FooterComponent } from './footer/footer.component';
 
 const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
 };
@@ -24,7 +26,9 @@ return new TranslateHttpLoader(http);
   declarations: [
     AppComponent,
     DashboardComponent,
-    GoogleMapComponent
+    GoogleMapComponent,
+    HeaderComponent,
+    FooterComponent
   ],
   imports: [
     BrowserModule,
