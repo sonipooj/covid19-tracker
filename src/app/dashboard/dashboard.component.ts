@@ -1926,8 +1926,8 @@ export class DashboardComponent implements OnInit, OnDestroy, DoCheck {
     worldPolygon.nonScalingStroke = true;
     worldPolygon.strokeOpacity = 0.5;
     // worldPolygon.fill = am4core.color("#eee");
-    // worldPolygon.propertyFields.fill = "#282d37";
-    worldPolygon.fill = am4core.color("#282d37");
+    // worldPolygon.propertyFields.fill = "color";
+     worldPolygon.fill = am4core.color("#282d37");
     worldPolygon.stroke = am4core.color("#313a46")
     this.mapChart = chart;
 
@@ -2037,6 +2037,9 @@ export class DashboardComponent implements OnInit, OnDestroy, DoCheck {
       countrySeries.hide();
       back.hide();
     });
+
+
+
   }
 
   showModal(): void {
