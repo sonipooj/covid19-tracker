@@ -9,7 +9,7 @@ HttpClient
   providedIn: 'root'
 })
 export class GetdataService {
-
+ api= "http://ec2-13-127-10-27.ap-south-1.compute.amazonaws.com:4502/bin/getCovidCasesDetails";
   constructor(private _http: HttpClient) { }
   private host = "https://api.coronastatistics.live"
 
@@ -20,7 +20,7 @@ export class GetdataService {
     );
   }
   getCountry(name): Observable<Country>{
-    return this._http.get<Country>(`${this.host}/countries/${name}`).pipe(
+    return this._http.get<Country>(`${this.api}/country/${name}`).pipe(
       retry(1),
       catchError(this.handleError)
     );

@@ -93,6 +93,7 @@ export class DashboardComponent implements OnInit,OnDestroy, DoCheck {
         this.setTranslations(translations);
         return 0;
     });
+  
   }
   calculateSum(index, array = this.countries) {
     var total = 0
@@ -142,7 +143,7 @@ export class DashboardComponent implements OnInit,OnDestroy, DoCheck {
     if(!localStorage.getItem("dontShow")){
       this.showModal();
     }
-    this.zone.runOutsideAngular(async () => {
+    // this.zone.runOutsideAngular(async () => {
       combineLatest(
         this._getDataService.getAll(this.sortType),
         this._getDataService.getTimelineGlobal()
@@ -172,13 +173,14 @@ export class DashboardComponent implements OnInit,OnDestroy, DoCheck {
         ]
       });
       this.timeLine = getTimelineData;
+      this.loadMap("cases");
       // this.loadLineChart(false);
       // this.loadRadar();
-      // this.loadPieChart();
+      //  this.loadPieChart();
 
       
      });
-    });
+    // });
   }
   searchCountries(key) {
     if (key) {
@@ -288,11 +290,15 @@ export class DashboardComponent implements OnInit,OnDestroy, DoCheck {
     }
     let mapData = [];
     this.fuse.list.forEach(element => {
+      console.log("element",element)
       if(element[option]!=0){
         mapData.push({
           id: this.countryCodes[element.country],
           name: element.country,
+          deaths:element.deaths,
+          active:element.active,
           value: element[option],
+          country:element.country,
           color: am4core.color(color)
         });
       }
@@ -323,7 +329,12 @@ export class DashboardComponent implements OnInit,OnDestroy, DoCheck {
     let circle = imageTemplate.createChild(am4core.Circle);
     circle.fillOpacity = 0.7;
     circle.propertyFields.fill = "color";
-    circle.tooltipText = "{name}: [bold]{value}[/]";
+
+    circle.tooltipText = `[font-size: 20px; #bd1550; bold]{country}[/]\n
+     Total : [bold]{value}[/]
+     Confirmed :[bold]{active}[/]
+     Deaths :[bold]{deaths}\n
+    `;
 
     chartMap.events.on("ready",()=>{
       this.isLoadingMap = false;
@@ -357,6 +368,62 @@ export class DashboardComponent implements OnInit,OnDestroy, DoCheck {
     polygonTemplate.fill = am4core.color("#282d37");
     polygonTemplate.stroke = am4core.color("#313a46")
     this.mapChart = chartMap;
+
+
+    //Adding for statewise
+
+    var worldPolygon = polygonSeries.mapPolygons.template;
+    worldPolygon.tooltipText = "{name}\n pooja";
+    worldPolygon.nonScalingStroke = true;
+    worldPolygon.strokeOpacity = 0.5;
+    worldPolygon.fill = am4core.color("#eee");
+    worldPolygon.propertyFields.fill = "color";
+
+    var hs = worldPolygon.states.create("hover");
+    hs.properties.fill = chartMap.colors.getIndex(9);
+
+
+    // Create country specific series (but hide it for now)
+    var countrySeries = chartMap.series.push(new am4maps.MapPolygonSeries());
+    countrySeries.useGeodata = true;
+    countrySeries.hide();
+    countrySeries.geodataSource.events.on("done", function (ev) {
+      polygonSeries.hide();
+      countrySeries.show();
+    });
+
+    var countryPolygon = countrySeries.mapPolygons.template;
+    countryPolygon.tooltipText = "{name}";
+    countryPolygon.nonScalingStroke = true;
+    countryPolygon.strokeOpacity = 0.5;
+    countryPolygon.fill = am4core.color("#eee");
+
+    var hs = countryPolygon.states.create("hover");
+    hs.properties.fill = chartMap.colors.getIndex(9);
+
+    // Set up click events
+    worldPolygon.events.on("hit", function (ev) {
+      ev.target.series.chart.zoomToMapObject(ev.target);
+     let map=ev.target.dataItem.dataContext["map"];
+      console.log("map",ev.target.dataItem.dataContext)
+      if (map) {
+        ev.target.isHover = false;
+        countrySeries.geodataSource.url = "https://www.amcharts.com/lib/4/geodata/json/" + map + ".json";
+        countrySeries.geodataSource.load();
+        back.show();
+      }
+       // Add zoomout button
+    var back = chartMap.createChild(am4core.ZoomOutButton);
+    back.align = "right";
+    back.hide();
+    back.events.on("hit", function (ev) {
+      polygonSeries.show();
+      chartMap.goHome();
+      countrySeries.hide();
+      back.hide();
+    });
+    });
+
   }
   // loadRadar() {
   //   let chart = am4core.create("radarChart", am4charts.RadarChart);
