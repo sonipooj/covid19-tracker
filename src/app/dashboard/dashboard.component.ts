@@ -2037,9 +2037,6 @@ export class DashboardComponent implements OnInit, OnDestroy, DoCheck {
       countrySeries.hide();
       back.hide();
     });
-
-
-
   }
 
   showModal(): void {
