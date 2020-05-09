@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { retry, catchError } from 'rxjs/operators';
 import { Country } from '../models/country';
 import { Observable, throwError } from 'rxjs';
+import { HttpHeaders } from '@angular/common/http';
 
 HttpClient
 @Injectable({
@@ -13,6 +14,23 @@ export class GetdataService {
   constructor(private _http: HttpClient) { }
   private host = "https://api.coronastatistics.live"
 
+   httpOptions = {
+    headers: new HttpHeaders({
+      'Content-Type':  'application/json',
+      'Authorization': 'Basic ' + btoa('admin:admin')
+    })
+  };
+
+  // getAll(type): Observable<Country>{
+  //   return this._http.get<Country>(`${this.api}?sort=${type}`,this.httpOptions).pipe(
+  //     retry(1),
+  //     catchError(this.handleError)
+  //   );
+  // }
+  getUser(){
+    return this._http.get(this.api, this.httpOptions);
+  console.log("this.getUser()",this.getUser())
+  }
   getAll(type): Observable<Country>{
     return this._http.get<Country>(`${this.host}/countries?sort=${type}`).pipe(
       retry(1),
