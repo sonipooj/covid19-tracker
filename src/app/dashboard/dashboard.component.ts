@@ -1,4 +1,5 @@
 
+
 import {
   Component,
   OnInit,
@@ -1564,15 +1565,15 @@ const continents = {
   styleUrls: ['./dashboard.component.css'],
   animations: [
     trigger('fadeInOutAnimation', [
-      state('in', style({opacity: 1})),
+      state('in', style({ opacity: 1 })),
       transition(':enter', [
-        style({opacity: 0}),
-        animate(600 )
+        style({ opacity: 0 }),
+        animate(600)
       ])
     ])
   ]
 })
-export class DashboardComponent implements OnInit,OnDestroy, DoCheck {
+export class DashboardComponent implements OnInit, OnDestroy, DoCheck {
   @ViewChild(PerfectScrollbarComponent) public directiveScroll: PerfectScrollbarComponent;
   @ViewChild('autoShownModal', { static: false }) autoShownModal: ModalDirective;
   isModalShown = false;
@@ -1604,22 +1605,22 @@ export class DashboardComponent implements OnInit,OnDestroy, DoCheck {
   public activeCases;
   public casesPer1M;
   public finishedCases;
-  
+
   public sortType = "todayCases";
-  
+
   public countryCodes = COUNTRY_CODES;
-  
+
   public countries: any = [];
   constructor(private zone: NgZone, private _getDataService: GetdataService, public translate: TranslateService) {
   }
 
   async ngDoCheck() {
     this.translate.get(['Shared.Other.14', 'Shared.Other.15', 'Shared.Other.16', 'Shared.Other.17', 'Shared.TopCards.1', 'Shared.TopCards.3', 'Shared.TopCards.4'])
-    .subscribe(translations => {
+      .subscribe(translations => {
         this.setTranslations(translations);
         return 0;
-    });
-  
+      });
+
   }
   calculateSum(index, array = this.countries) {
     var total = 0
@@ -1658,7 +1659,7 @@ export class DashboardComponent implements OnInit,OnDestroy, DoCheck {
       if (this.lineChart) {
         this.lineChart.dispose();
       }
-      if(this.radarChart){
+      if (this.radarChart) {
         this.radarChart.dispose();
       }
     });
@@ -1668,50 +1669,50 @@ export class DashboardComponent implements OnInit,OnDestroy, DoCheck {
 
 
     await this.ngDoCheck();
-    if(!localStorage.getItem("dontShow")){
+    if (!localStorage.getItem("dontShow")) {
       this.showModal();
     }
-    
-  
+
+
 
     // this.zone.runOutsideAngular(async () => {
-      combineLatest(
-        this._getDataService.getAll(this.sortType),
-        this._getDataService.getTimelineGlobal()
-     )
-     .subscribe(([getAllData, getTimelineData]) => {
-       this.isLoading = false;
-      this.isLoadingCountries = false;
-      this.isLoadingMap = false;
-      this.countries = getAllData;
-      this.totalCases = this.calculateSum("cases");
-      this.totalDeaths = this.calculateSum("deaths");
-      this.totalRecoveries = this.calculateSum("recovered");
-      this.totalCritical = this.calculateSum("critical");
-      this.todayCases = this.calculateSum("todayCases");
-      this.todayDeaths = this.calculateSum("todayDeaths");
-      this.activeCases = this.calculateSum("active");
-      this.casesPer1M = this.calculateSum("casesPerOneMillion");
-      this.finishedCases = this.totalDeaths + this.totalRecoveries;
-      this.fuse = new Fuse(this.countries, {
-        shouldSort: true,
-        threshold: 0.6,
-        location: 0,
-        distance: 100,
-        minMatchCharLength: 1,
-        keys: [
-          "country"
-        ]
-      });
-      this.timeLine = getTimelineData;
-      this.loadMap("cases");
-      // this.loadLineChart(false);
-      // this.loadRadar();
-      //  this.loadPieChart();
+    combineLatest(
+      this._getDataService.getAll(this.sortType),
+      this._getDataService.getTimelineGlobal()
+    )
+      .subscribe(([getAllData, getTimelineData]) => {
+        this.isLoading = false;
+        this.isLoadingCountries = false;
+        this.isLoadingMap = false;
+        this.countries = getAllData;
+        this.totalCases = this.calculateSum("cases");
+        this.totalDeaths = this.calculateSum("deaths");
+        this.totalRecoveries = this.calculateSum("recovered");
+        this.totalCritical = this.calculateSum("critical");
+        this.todayCases = this.calculateSum("todayCases");
+        this.todayDeaths = this.calculateSum("todayDeaths");
+        this.activeCases = this.calculateSum("active");
+        this.casesPer1M = this.calculateSum("casesPerOneMillion");
+        this.finishedCases = this.totalDeaths + this.totalRecoveries;
+        this.fuse = new Fuse(this.countries, {
+          shouldSort: true,
+          threshold: 0.6,
+          location: 0,
+          distance: 100,
+          minMatchCharLength: 1,
+          keys: [
+            "country"
+          ]
+        });
+        this.timeLine = getTimelineData;
+        this.loadMap("cases");
+        // this.loadLineChart(false);
+        // this.loadRadar();
+        //  this.loadPieChart();
 
-      this._getDataService.getUser().subscribe( user => {console.log("user",user)});
-      
-     });
+        // this._getDataService.getUser().subscribe( user => {console.log("user",user)});
+
+      });
     // });
   }
   searchCountries(key) {
@@ -1723,14 +1724,14 @@ export class DashboardComponent implements OnInit,OnDestroy, DoCheck {
     }
     this.countries = this.fuse.list;
   }
-  
+
   sortCountries(key, skey) {
     this.isLoadingCountries = true;
     this.sortType = key;
     this.loadSorted();
   }
-  
-  loadSorted(){
+
+  loadSorted() {
     this._getDataService.getAll(this.sortType).subscribe((data: {}) => {
       this.countries = data;
       this.isLoadingCountries = false;
@@ -1789,7 +1790,7 @@ export class DashboardComponent implements OnInit,OnDestroy, DoCheck {
   //   // Create axes
   //   let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
   //   dateAxis.renderer.minGridDistance = 50;
-    
+
   //   let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
   //   valueAxis.logarithmic = chartType;
   //   valueAxis.renderer.labels.template.fill = am4core.color("#adb5bd");
@@ -1808,7 +1809,7 @@ export class DashboardComponent implements OnInit,OnDestroy, DoCheck {
   //   this.lineChart = chart;
   // }
   loadMap(option) {
-    this.isLoadingMap=true;
+    this.isLoadingMap = true;
     if (this.mapChart) {
       this.mapChart.dispose();
     }
@@ -1822,15 +1823,15 @@ export class DashboardComponent implements OnInit,OnDestroy, DoCheck {
     }
     let mapData = [];
     this.fuse.list.forEach(element => {
-      console.log("element",element)
-      if(element[option]!=0){
+      console.log("element", element)
+      if (element[option] != 0) {
         mapData.push({
           id: this.countryCodes[element.country],
           name: element.country,
-          deaths:element.deaths,
-          active:element.active,
+          deaths: element.deaths,
+          active: element.active,
           value: element[option],
-          country:element.country,
+          country: element.country,
           color: am4core.color(color)
         });
       }
@@ -1839,7 +1840,7 @@ export class DashboardComponent implements OnInit,OnDestroy, DoCheck {
     let chartMap = am4core.create("worldChart1", am4maps.MapChart);
     // Set map definition
     chartMap.geodata = am4geodata_worldLow;
-    
+
     // Set projection
     chartMap.projection = new am4maps.projections.Miller();
 
@@ -1850,14 +1851,14 @@ export class DashboardComponent implements OnInit,OnDestroy, DoCheck {
     polygonSeries.nonScalingStroke = true;
     polygonSeries.strokeWidth = 0.5;
     polygonSeries.calculateVisualCenter = true;
-    
+
     let imageSeries = chartMap.series.push(new am4maps.MapImageSeries());
     imageSeries.data = mapData;
     imageSeries.dataFields.value = "value";
-    
+
     let imageTemplate = imageSeries.mapImages.template;
     imageTemplate.nonScaling = true
-    
+
     let circle = imageTemplate.createChild(am4core.Circle);
     circle.fillOpacity = 0.7;
     circle.propertyFields.fill = "color";
@@ -1868,7 +1869,7 @@ export class DashboardComponent implements OnInit,OnDestroy, DoCheck {
      Deaths :[bold]{deaths}\n
     `;
 
-    chartMap.events.on("ready",()=>{
+    chartMap.events.on("ready", () => {
       this.isLoadingMap = false;
     })
 
@@ -1879,7 +1880,7 @@ export class DashboardComponent implements OnInit,OnDestroy, DoCheck {
       "max": 30,
       "dataField": "value"
     })
-    
+
     imageTemplate.adapter.add("latitude", function (latitude, target) {
       let polygon = polygonSeries.getPolygonById(target.dataItem.dataContext["id"]);
       if (polygon) {
@@ -1887,10 +1888,11 @@ export class DashboardComponent implements OnInit,OnDestroy, DoCheck {
       }
       return latitude;
     })
-    
+
     imageTemplate.adapter.add("longitude", function (longitude, target) {
       let polygon = polygonSeries.getPolygonById(target.dataItem.dataContext["id"]);
       if (polygon) {
+        console.log("polygon-1", polygon)
         return polygon.visualLongitude;
       }
       return longitude;
@@ -1903,117 +1905,170 @@ export class DashboardComponent implements OnInit,OnDestroy, DoCheck {
 
 
     //******************* */Adding for statewise********************/
-    
-  /* Create map instance */
-  let chart = am4core.create("worldChart", am4maps.MapChart);
-  chart.projection = new am4maps.projections.Miller();
+    /* Create map instance */
+    let chart = am4core.create("worldChart", am4maps.MapChart);
 
-    // Create map polygon series for world map
-   let worldSeries = chart.series.push(new am4maps.MapPolygonSeries());
-   worldSeries.useGeodata = true;
-   worldSeries.geodata = am4geodata_worldLow;
-   worldSeries.exclude = ["AQ"];
+    // Set map definition
+    chart.geodata = am4geodata_worldLow;
+    chart.projection = new am4maps.projections.Miller();
 
-   var worldPolygon = worldSeries.mapPolygons.template;
-   worldPolygon.tooltipText = "{name}\n pooja";
-   worldPolygon.nonScalingStroke = true;
-   worldPolygon.strokeOpacity = 0.5;
-   worldPolygon.fill = am4core.color("#eee");
-   worldPolygon.propertyFields.fill = "color";
+    // Create map polygon series for world map  
+    let worldSeries = chart.series.push(new am4maps.MapPolygonSeries());
+    worldSeries.useGeodata = true;
 
-   var hs = worldPolygon.states.create("hover");
-   hs.properties.fill = chart.colors.getIndex(9);
+    worldSeries.exclude = ["AQ"];
+    worldSeries.nonScalingStroke = true;
+    worldSeries.strokeWidth = 0.5;
+    worldSeries.calculateVisualCenter = true;
 
+    var worldPolygon = worldSeries.mapPolygons.template;
+    worldPolygon.tooltipText = "{name}\n pooja";
+    worldPolygon.nonScalingStroke = true;
+    worldPolygon.strokeOpacity = 0.5;
+    worldPolygon.fill = am4core.color("#eee");
+    worldPolygon.propertyFields.fill = "color";
+    this.mapChart = chart;
 
-   // Create country specific series (but hide it for now)
-   var countrySeries = chart.series.push(new am4maps.MapPolygonSeries());
-   countrySeries.useGeodata = true;
-   countrySeries.hide();
-   countrySeries.geodataSource.events.on("done", function (ev) {
-     worldSeries.hide();
-     countrySeries.show();
-   });
+    var hs = worldPolygon.states.create("hover");
+    hs.properties.fill = chart.colors.getIndex(9);
 
-   var countryPolygon = countrySeries.mapPolygons.template;
-   countryPolygon.tooltipText = "{name}";
-   countryPolygon.nonScalingStroke = true;
-   countryPolygon.strokeOpacity = 0.5;
-   countryPolygon.fill = am4core.color("#eee");
+    //creating imageMap for GooglrMap
+    let imageMapSeries = chart.series.push(new am4maps.MapImageSeries());
+    imageMapSeries.data = mapData;
+    imageMapSeries.dataFields.value = "value";
 
-   var hs = countryPolygon.states.create("hover");
-   hs.properties.fill = chart.colors.getIndex(9);
+    let imageMapTemplate = imageMapSeries.mapImages.template;
+    imageMapTemplate.nonScaling = true;
 
-   // Set up click events
-   worldPolygon.events.on("hit", function (ev) {
-     ev.target.series.chart.zoomToMapObject(ev.target);
-    let map=ev.target.dataItem.dataContext["map"];
-     console.log("map",ev.target.dataItem.dataContext)
-     if (map) {
-       ev.target.isHover = false;
-       countrySeries.geodataSource.url = "https://www.amcharts.com/lib/4/geodata/json/" + map + ".json";
-       countrySeries.geodataSource.load();
-       back.show();
-     }
-   });
-   // Set up data for countries
-   var data = [];
-   for (var id in countries) {
-     if (countries.hasOwnProperty(id)) {
-       var country = countries[id];
-       if (country.maps.length) {
-         data.push({
-           id: id,
-           color: chart.colors.getIndex(continents[country.continent_code]),
-           map: country.maps[0]
-         });
-       }
-     }
-   }
-   worldSeries.data = data;
+    let circleMap = imageMapTemplate.createChild(am4core.Circle);
+    circleMap.fillOpacity = 0.7;
+    circleMap.propertyFields.fill = "color";
 
-   // Add zoomout button
-   var back = chart.createChild(am4core.ZoomOutButton);
-   back.align = "right";
-   back.hide();
-   back.events.on("hit", function (ev) {
-     worldSeries.show();
-     chart.goHome();
-     countrySeries.hide();
-     back.hide();
-   });
+    circleMap.tooltipText = `[font-size: 20px; #bd1550; bold]{country}[/]\n
+     Total : [bold]{value}[/]
+     Confirmed :[bold]{active}[/]
+     Deaths :[bold]{deaths}\n
+    `;
 
- 
+    chart.events.on("ready", () => {
+      this.isLoadingMap = false;
+    })
+
+    imageMapSeries.heatRules.push({
+      "target": circleMap,
+      "property": "radius",
+      "min": 4,
+      "max": 30,
+      "dataField": "value"
+    })
+    //creating ImageTemplate for Map
+    imageMapTemplate.adapter.add("latitude", function (latitude, target) {
+      let polygon = worldSeries.getPolygonById(target.dataItem.dataContext["id"]);
+      if (polygon) {
+        console.log("polygon", polygon)
+        return polygon.visualLatitude;
+      }
+      return latitude;
+    })
+
+    imageMapTemplate.adapter.add("longitude", function (longitude, target) {
+      let polygon = worldSeries.getPolygonById(target.dataItem.dataContext["id"]);
+      if (polygon) {
+        return polygon.visualLongitude;
+      }
+      return longitude;
+    })
+    //////////////////////////////
+    // Create country specific series (but hide it for now)
+    var countrySeries = chart.series.push(new am4maps.MapPolygonSeries());
+    countrySeries.useGeodata = true;
+    countrySeries.hide();
+    countrySeries.geodataSource.events.on("done", function (ev) {
+      worldSeries.hide();
+      countrySeries.show();
+    });
+
+    var countryPolygon = countrySeries.mapPolygons.template;
+    countryPolygon.tooltipText = "{name}";
+    countryPolygon.nonScalingStroke = true;
+    countryPolygon.strokeOpacity = 0.5;
+    countryPolygon.fill = am4core.color("#eee");
+
+    var hs = countryPolygon.states.create("hover");
+    hs.properties.fill = chart.colors.getIndex(9);
+
+    // Set up click events
+    worldPolygon.events.on("hit", function (ev) {
+      ev.target.series.chart.zoomToMapObject(ev.target);
+      let map = ev.target.dataItem.dataContext["map"];
+      console.log("map", ev.target.dataItem.dataContext)
+      if (map) {
+        ev.target.isHover = false;
+        countrySeries.geodataSource.url = "https://www.amcharts.com/lib/4/geodata/json/" + map + ".json";
+        countrySeries.geodataSource.load();
+        back.show();
+      }
+    });
+    // Set up data for countries
+    var data = [];
+    for (var id in countries) {
+      if (countries.hasOwnProperty(id)) {
+        var country = countries[id];
+        if (country.maps.length) {
+          data.push({
+            id: id,
+            color: chart.colors.getIndex(continents[country.continent_code]),
+            map: country.maps[0]
+          });
+        }
+      }
+    }
+    worldSeries.data = data;
+
+    // Add zoomout button
+    var back = chart.createChild(am4core.ZoomOutButton);
+    back.align = "right";
+    back.hide();
+    back.events.on("hit", function (ev) {
+      worldSeries.show();
+      chart.goHome();
+      countrySeries.hide();
+      back.hide();
+    });
+
 
 
   }
-  
+
   showModal(): void {
     this.modalStep = 1;
     this.isModalShown = true;
   }
- 
+
   hideModal(): void {
     this.autoShownModal.hide();
   }
- 
+
   onHidden(): void {
     this.isModalShown = false;
   }
-  nextStep(){
-    this.modalStep+=1;
+  nextStep() {
+    this.modalStep += 1;
   }
-  close(dontShow){
-    if(dontShow){
-      localStorage.setItem("dontShow","true");
+  close(dontShow) {
+    if (dontShow) {
+      localStorage.setItem("dontShow", "true");
     }
     this.hideModal();
   }
-async setTranslations(translations){
-this.translations.active = translations['Shared.Other.14'];
-this.translations.recovered = translations['Shared.Other.15'];
-this.translations.deaths = translations['Shared.Other.16'];
-this.translations.critical = translations['Shared.Other.17'];
-this.translations.cases = translations['Shared.Other.14'];
-}
+  async setTranslations(translations) {
+    this.translations.active = translations['Shared.Other.14'];
+    this.translations.recovered = translations['Shared.Other.15'];
+    this.translations.deaths = translations['Shared.Other.16'];
+    this.translations.critical = translations['Shared.Other.17'];
+    this.translations.cases = translations['Shared.Other.14'];
+  }
 
 }
+
+
