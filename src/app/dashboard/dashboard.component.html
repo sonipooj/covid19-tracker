@@ -18,11 +18,11 @@
             <div class="fa-3x text-center" [class.d-none]="!isLoadingMap">
               <i class="fas fa-circle-notch fa-spin m-2"></i>
             </div>
-            <div class="table-responsive" [class.d-none]="isLoadingMap">
+            <!-- <div class="table-responsive" [class.d-none]="isLoadingMap">
               <div id="worldChart1" style="width: 100%; height: 400px; overflow: hidden"></div>
-            </div>
-            <div class="table-responsive" [class.d-none]="isLoadingMap">
-                <div id="worldChart" style="width: 100%; height: 700px; overflow: hidden"></div>
+            </div> -->
+            <div class="table-responsive" [class.d-none]="isLoadingMap" style="width: 100%; height: 700px;">
+                <div id="worldChart" style="width: 100%; height: 650px; overflow: hidden"></div>
               </div>
             <div class="d-md-none d-inline">
               <button type="button"

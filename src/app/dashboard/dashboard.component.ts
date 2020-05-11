@@ -9,6 +9,8 @@ import {
   DoCheck,
 } from '@angular/core';
 import COUNTRY_CODES from "../shared/countries"
+import STATE_CODES from "../shared/states"
+
 import { combineLatest } from 'rxjs';
 import * as am4core from "@amcharts/amcharts4/core";
 import * as am4charts from "@amcharts/amcharts4/charts";
@@ -1580,8 +1582,9 @@ export class DashboardComponent implements OnInit, OnDestroy, DoCheck {
   public modalStep = 1;
   public translations: any = {};
   public fuse: any;
+  public stateFuse: any;
   public fuseResults: any[];
-
+  public stateData:any;
   public timeLine: any;
 
   public caseData = [];
@@ -1609,8 +1612,10 @@ export class DashboardComponent implements OnInit, OnDestroy, DoCheck {
   public sortType = "todayCases";
 
   public countryCodes = COUNTRY_CODES;
-
+  public stateCodes=STATE_CODES;
   public countries: any = [];
+  public states:any=[];
+  public updatedState:any=[];
   constructor(private zone: NgZone, private _getDataService: GetdataService, public translate: TranslateService) {
   }
 
@@ -1627,6 +1632,7 @@ export class DashboardComponent implements OnInit, OnDestroy, DoCheck {
     for (var i = 0, _len = array.length; i < _len; i++) {
       total += array[i][index]
     }
+    console.log("total",total)
     return total
   }
 
@@ -1674,17 +1680,20 @@ export class DashboardComponent implements OnInit, OnDestroy, DoCheck {
     }
 
 
-
-    // this.zone.runOutsideAngular(async () => {
     combineLatest(
       this._getDataService.getAll(this.sortType),
-      this._getDataService.getTimelineGlobal()
+      this._getDataService.getTimelineGlobal(),
+      this._getDataService.getSates()
     )
-      .subscribe(([getAllData, getTimelineData]) => {
+      .subscribe(([getAllData, getTimelineData, getAllStateData]) => {
+        console.log("getAllData",getAllData)
+        console.log("getTimelineData",getTimelineData)
         this.isLoading = false;
         this.isLoadingCountries = false;
         this.isLoadingMap = false;
         this.countries = getAllData;
+        this.states=getAllStateData;
+        console.log("getAllStateData",this.states);
         this.totalCases = this.calculateSum("cases");
         this.totalDeaths = this.calculateSum("deaths");
         this.totalRecoveries = this.calculateSum("recovered");
@@ -1694,6 +1703,24 @@ export class DashboardComponent implements OnInit, OnDestroy, DoCheck {
         this.activeCases = this.calculateSum("active");
         this.casesPer1M = this.calculateSum("casesPerOneMillion");
         this.finishedCases = this.totalDeaths + this.totalRecoveries;
+
+        //Updating states code
+          for (let key in this.states) {
+            if (this.states.hasOwnProperty(key)) {
+              let state = this.states[key];
+              
+              this.updatedState.push(
+                {
+                  id: "IN-"+this.states[key].statecode,
+                  name:key,
+                  total:100,
+                  active:40,
+                  deaths:1
+                });     
+            }
+          }
+          console.log("==updatedState==================",JSON.stringify(this.updatedState));
+
         this.fuse = new Fuse(this.countries, {
           shouldSort: true,
           threshold: 0.6,
@@ -1704,110 +1731,26 @@ export class DashboardComponent implements OnInit, OnDestroy, DoCheck {
             "country"
           ]
         });
+        this.stateFuse = new Fuse(this.updatedState, {
+          shouldSort: true,
+          threshold: 0.6,
+          location: 0,
+          distance: 100,
+          minMatchCharLength: 1,
+          keys: [
+            "states"
+          ]
+        });
+
         this.timeLine = getTimelineData;
         this.loadMap("cases");
-        // this.loadLineChart(false);
-        // this.loadRadar();
-        //  this.loadPieChart();
-
-        // this._getDataService.getUser().subscribe( user => {console.log("user",user)});
 
       });
-    // });
+
   }
-  searchCountries(key) {
-    if (key) {
-      this.countries = this.fuse.search(key);
-      if (isUndefined(this.directiveScroll)) return;
-      this.directiveScroll.directiveRef.scrollToTop()
-      return
-    }
-    this.countries = this.fuse.list;
-  }
+  
+  
 
-  sortCountries(key, skey) {
-    this.isLoadingCountries = true;
-    this.sortType = key;
-    this.loadSorted();
-  }
-
-  loadSorted() {
-    this._getDataService.getAll(this.sortType).subscribe((data: {}) => {
-      this.countries = data;
-      this.isLoadingCountries = false;
-    });
-  }
-  loadPieChart() {
-    let tempData = this.fuse.list.slice();
-    this.sortData(tempData, "cases");
-    tempData = tempData.reverse();
-    let chart = am4core.create("pieChart", am4charts.PieChart);
-    chart.data = tempData.slice(0, 10);
-    let otherCases = tempData.slice(10, tempData.length);
-    chart.data.push({
-      country: 'Other',
-      cases: this.calculateSum("cases", otherCases)
-    });
-    let pieSeries = chart.series.push(new am4charts.PieSeries());
-    pieSeries.dataFields.value = "cases";
-    pieSeries.dataFields.category = "country";
-    pieSeries.labels.template.disabled = true;
-    pieSeries.ticks.template.disabled = true;
-    pieSeries.slices.template.stroke = am4core.color("#313a46");
-    pieSeries.slices.template.strokeWidth = 1;
-    pieSeries.slices.template.strokeOpacity = 1;
-    this.pieChart = chart;
-
-    this.loadMap("cases");
-  }
-  // loadLineChart(chartType) {
-  //   this.caseData = [];
-  //   if (this.lineChart) {
-  //     this.lineChart.dispose();
-  //   }
-  //   Object.keys(this.timeLine).forEach(key => {
-  //     this.caseData.push({
-  //       date: new Date(key),
-  //       cases: this.timeLine[key].cases,
-  //       recoveries: this.timeLine[key].recovered,
-  //       deaths: this.timeLine[key].deaths
-  //     });
-  //   });
-  //   this.caseData.push({
-  //     date: new Date().getTime(),
-  //     cases: this.totalCases,
-  //     recoveries: this.totalRecoveries,
-  //     deaths: this.totalDeaths
-  //   });
-
-  //   let chart = am4core.create("lineChart", am4charts.XYChart);
-  //   chart.numberFormatter.numberFormat = "#a";
-  //   chart.numberFormatter.bigNumberPrefixes = [
-  //     { "number": 1e+3, "suffix": "K" },
-  //     { "number": 1e+6, "suffix": "M" },
-  //     { "number": 1e+9, "suffix": "B" }
-  //   ];
-  //   // Create axes
-  //   let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
-  //   dateAxis.renderer.minGridDistance = 50;
-
-  //   let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
-  //   valueAxis.logarithmic = chartType;
-  //   valueAxis.renderer.labels.template.fill = am4core.color("#adb5bd");
-  //   dateAxis.renderer.labels.template.fill = am4core.color("#adb5bd");
-
-  //   chart = this.createSeriesLine(chart, "#21AFDD", "cases");
-  //   chart = this.createSeriesLine(chart, "#10c469", "recoveries");
-  //   chart = this.createSeriesLine(chart, "#ff5b5b", "deaths");
-
-  //   chart.data = this.caseData;
-
-  //   chart.legend = new am4charts.Legend();
-  //   chart.legend.labels.template.fill = am4core.color("#adb5bd");
-
-  //   chart.cursor = new am4charts.XYCursor();
-  //   this.lineChart = chart;
-  // }
   loadMap(option) {
     this.isLoadingMap = true;
     if (this.mapChart) {
@@ -1822,6 +1765,7 @@ export class DashboardComponent implements OnInit, OnDestroy, DoCheck {
       color = "#ff5b5b";
     }
     let mapData = [];
+    console.log("this.fuse.list",this.fuse.list)
     this.fuse.list.forEach(element => {
       console.log("element", element)
       if (element[option] != 0) {
@@ -1836,75 +1780,10 @@ export class DashboardComponent implements OnInit, OnDestroy, DoCheck {
         });
       }
     });
+    console.log("mapData",mapData)
 
-    let chartMap = am4core.create("worldChart1", am4maps.MapChart);
-    // Set map definition
-    chartMap.geodata = am4geodata_worldLow;
-
-    // Set projection
-    chartMap.projection = new am4maps.projections.Miller();
-
-    // Create map polygon series
-    let polygonSeries = chartMap.series.push(new am4maps.MapPolygonSeries());
-    polygonSeries.exclude = ["AQ"];
-    polygonSeries.useGeodata = true;
-    polygonSeries.nonScalingStroke = true;
-    polygonSeries.strokeWidth = 0.5;
-    polygonSeries.calculateVisualCenter = true;
-
-    let imageSeries = chartMap.series.push(new am4maps.MapImageSeries());
-    imageSeries.data = mapData;
-    imageSeries.dataFields.value = "value";
-
-    let imageTemplate = imageSeries.mapImages.template;
-    imageTemplate.nonScaling = true
-
-    let circle = imageTemplate.createChild(am4core.Circle);
-    circle.fillOpacity = 0.7;
-    circle.propertyFields.fill = "color";
-
-    circle.tooltipText = `[font-size: 20px; #bd1550; bold]{country}[/]\n
-     Total : [bold]{value}[/]
-     Confirmed :[bold]{active}[/]
-     Deaths :[bold]{deaths}\n
-    `;
-
-    chartMap.events.on("ready", () => {
-      this.isLoadingMap = false;
-    })
-
-    imageSeries.heatRules.push({
-      "target": circle,
-      "property": "radius",
-      "min": 4,
-      "max": 30,
-      "dataField": "value"
-    })
-
-    imageTemplate.adapter.add("latitude", function (latitude, target) {
-      let polygon = polygonSeries.getPolygonById(target.dataItem.dataContext["id"]);
-      if (polygon) {
-        return polygon.visualLatitude;
-      }
-      return latitude;
-    })
-
-    imageTemplate.adapter.add("longitude", function (longitude, target) {
-      let polygon = polygonSeries.getPolygonById(target.dataItem.dataContext["id"]);
-      if (polygon) {
-        console.log("polygon-1", polygon)
-        return polygon.visualLongitude;
-      }
-      return longitude;
-    })
-    let polygonTemplate = polygonSeries.mapPolygons.template;
-    polygonTemplate.tooltipText = "{name}";
-    polygonTemplate.fill = am4core.color("#282d37");
-    polygonTemplate.stroke = am4core.color("#313a46")
-    this.mapChart = chartMap;
-
-
-    //******************* */Adding for statewise********************/
+   
+    //******************* */Adding for Coutry ********************/
     /* Create map instance */
     let chart = am4core.create("worldChart", am4maps.MapChart);
 
@@ -1925,12 +1804,29 @@ export class DashboardComponent implements OnInit, OnDestroy, DoCheck {
     worldPolygon.tooltipText = "{name}\n pooja";
     worldPolygon.nonScalingStroke = true;
     worldPolygon.strokeOpacity = 0.5;
-    worldPolygon.fill = am4core.color("#eee");
-    worldPolygon.propertyFields.fill = "color";
+   // worldPolygon.propertyFields.fill = "color";
+    worldPolygon.fill = am4core.color("#282d37");
+    worldPolygon.stroke = am4core.color("#313a46")
     this.mapChart = chart;
 
+    // Create hover state and set alternative fill color
     var hs = worldPolygon.states.create("hover");
     hs.properties.fill = chart.colors.getIndex(9);
+
+    // Add zoom control
+    chart.zoomControl = new am4maps.ZoomControl();
+
+    // Add Home button
+    var button = chart.chartContainer.createChild(am4core.Button);
+    button.padding(5, 3, 5, 5);
+    button.align = "right";
+    button.marginRight = 15;
+    button.events.on("hit", function() {
+      chart.goHome();
+    });
+
+    button.icon = new am4core.Sprite();
+    button.icon.path = "M16,8 L14,8 L14,16 L10,16 L10,10 L6,10 L6,16 L2,16 L2,8 L0,8 L8,0 L16,8 Z M16,8";
 
     //creating imageMap for GooglrMap
     let imageMapSeries = chart.series.push(new am4maps.MapImageSeries());
@@ -1941,7 +1837,7 @@ export class DashboardComponent implements OnInit, OnDestroy, DoCheck {
     imageMapTemplate.nonScaling = true;
 
     let circleMap = imageMapTemplate.createChild(am4core.Circle);
-    circleMap.fillOpacity = 0.7;
+    circleMap.fillOpacity = 0.4;
     circleMap.propertyFields.fill = "color";
 
     circleMap.tooltipText = `[font-size: 20px; #bd1550; bold]{country}[/]\n
@@ -1965,7 +1861,6 @@ export class DashboardComponent implements OnInit, OnDestroy, DoCheck {
     imageMapTemplate.adapter.add("latitude", function (latitude, target) {
       let polygon = worldSeries.getPolygonById(target.dataItem.dataContext["id"]);
       if (polygon) {
-        console.log("polygon", polygon)
         return polygon.visualLatitude;
       }
       return latitude;
@@ -1985,35 +1880,137 @@ export class DashboardComponent implements OnInit, OnDestroy, DoCheck {
     countrySeries.hide();
     countrySeries.geodataSource.events.on("done", function (ev) {
       worldSeries.hide();
+      button.hide();
       countrySeries.show();
     });
 
     var countryPolygon = countrySeries.mapPolygons.template;
-    countryPolygon.tooltipText = "{name}";
+    countryPolygon.tooltipText = "{name}\n India";
     countryPolygon.nonScalingStroke = true;
     countryPolygon.strokeOpacity = 0.5;
     countryPolygon.fill = am4core.color("#eee");
 
-    var hs = countryPolygon.states.create("hover");
+// Create hover state and set alternative fill color
+  var hs = countryPolygon.states.create("hover");
     hs.properties.fill = chart.colors.getIndex(9);
 
-    // Set up click events
-    worldPolygon.events.on("hit", function (ev) {
-      ev.target.series.chart.zoomToMapObject(ev.target);
-      let map = ev.target.dataItem.dataContext["map"];
-      console.log("map", ev.target.dataItem.dataContext)
-      if (map) {
-        ev.target.isHover = false;
-        countrySeries.geodataSource.url = "https://www.amcharts.com/lib/4/geodata/json/" + map + ".json";
-        countrySeries.geodataSource.load();
-        back.show();
+    console.log("==this.states in map",this.states);
+    console.log("==this.updatedstate in map",this.updatedState);
+
+    let stateMapData = [];
+    this.stateFuse.list.forEach(element => {
+      console.log("==stateFuse element", element);
+      // id: this.stateCodes[element.name],
+      if (element != 0) {
+        stateMapData.push({
+          id: element.id,
+          name: element.name,
+          total:element.total,
+          active: element.active,
+          deaths:element.deaths,
+          value: 'value',
+          color: am4core.color(color)
+        });
       }
     });
+    console.log("==stateMapData", stateMapData);
+
+
+    ///start Adding for country marker
+    let imageStateSeries = chart.series.push(new am4maps.MapImageSeries());
+    imageStateSeries.data = stateMapData;
+    imageStateSeries.dataFields.value = "value";
+    
+    let imageStateTemplate = imageStateSeries.mapImages.template;
+    imageStateTemplate.nonScaling = true;
+
+    // imageStateTemplate.horizontalCenter = "middle";
+    // imageStateTemplate.verticalCenter = "middle";
+    // imageStateTemplate.width = 8;
+    // imageStateTemplate.height = 8;
+
+
+    
+    let circleState = imageStateTemplate.createChild(am4core.Circle);
+    circleState.fillOpacity = 0.7;
+    circleState.propertyFields.fill = "#21AFDD";
+
+    circleState.tooltipText = `[font-size: 20px; #bd1550; bold]{name}[/]\n
+     Total : [bold]{total}[/]
+     Confirmed :[bold]{active}[/]
+     Deaths :[bold]{deaths}\n
+    `;
+    
+    imageStateSeries.heatRules.push({
+      "target": circleState,
+      "property": "radius",
+      "min": 2,
+      "max": 3,
+      "dataField": "value"
+    });
+    //getting cordinated on click
+    chart.seriesContainer.events.on("hit", function(ev) {
+      const  cor_latitude= chart.svgPointToGeo(ev.svgPoint).latitude;
+      const  cor_longitude= chart.svgPointToGeo(ev.svgPoint).longitude;
+ 
+       console.log("clicked location",cor_latitude);
+       console.log("clicked location",cor_longitude);
+     });
+ 
+     imageStateTemplate.adapter.add("latitude", function (latitude, target) {
+       let polygon = countrySeries.getPolygonById(target.dataItem.dataContext["id"]);
+       console.log("IND-polygon-lat",polygon)
+       if (polygon) {
+         return polygon.visualLatitude;
+       }
+       return latitude;
+     })
+ 
+     
+     imageStateTemplate.adapter.add("longitude", function (longitude, target) {
+       // console.log("countrySeries.MultiPolygon.template.propertyFields",countrySeries.mapPolygons.template.propertyFields)
+       // let polygon = countrySeries.getPolygonById(target.dataItem.dataContext["id"]);
+       let polygon = countrySeries.getPolygonById(target.dataItem.dataContext["id"]);
+ 
+       console.log("IND-polygon-lon",polygon)
+       if (polygon) {
+         return polygon.visualLongitude;
+       }
+       return longitude;
+     })
+ ///End Adding for country marker
+ 
+
+        // Set up click events
+        worldPolygon.events.on("hit", function (ev) {
+          ev.target.series.chart.zoomToMapObject(ev.target);
+          let map = ev.target.dataItem.dataContext["map"];
+          var countryCode = ev.target.dataItem.dataContext["id"];
+          
+          console.log("countryCode",countryCode)
+          console.log("map", ev.target.dataItem.dataContext)
+          if (map) {
+            ev.target.isHover = false;
+            countrySeries.geodataSource.url = "https://www.amcharts.com/lib/4/geodata/json/" + map + ".json";
+            countrySeries.geodataSource.load();
+            console.log("countrySeries.geodataSource.processData,",countrySeries.geodataSource)
+            back.show();
+
+    
+          }
+          
+        });
+
+
+
     // Set up data for countries
     var data = [];
     for (var id in countries) {
+      console.log("id",id)
       if (countries.hasOwnProperty(id)) {
+        console.log("countries",countries)
         var country = countries[id];
+        console.log("country",country)
         if (country.maps.length) {
           data.push({
             id: id,
@@ -2031,10 +2028,13 @@ export class DashboardComponent implements OnInit, OnDestroy, DoCheck {
     back.hide();
     back.events.on("hit", function (ev) {
       worldSeries.show();
+      button.show();
       chart.goHome();
       countrySeries.hide();
       back.hide();
     });
+
+    
 
 
 
