@@ -13,8 +13,9 @@ export class GetdataService {
  api= "http://ec2-13-127-10-27.ap-south-1.compute.amazonaws.com:4502/bin/getCovidCasesDetails";
  indStateApi="https://api.covid19india.org/state_district_wise.json";
  indStatUrl="https://covid19-india-adhikansh.herokuapp.com/states";
+ countryApi = 'https://coronavirus-19-api.herokuapp.com/countries';
   constructor(private _http: HttpClient) { }
-  private host = "https://api.coronastatistics.live"
+  // private host = "https://api.coronastatistics.live"
 
    httpOptions = {
     headers: new HttpHeaders({
@@ -44,8 +45,8 @@ export class GetdataService {
     //   catchError(this.handleError)
     // );
   }
-  getAll(type): Observable<Country>{
-    return this._http.get<Country>(`${this.host}/countries?sort=${type}`).pipe(
+  getAll(): Observable<Country>{
+    return this._http.get<Country>(`${this.countryApi}`).pipe(
       retry(1),
       catchError(this.handleError)
     );
@@ -56,24 +57,24 @@ export class GetdataService {
       catchError(this.handleError)
     );
   }
-  getTimeline(){
-    return this._http.get(`${this.host}/timeline`).pipe(
-      retry(1),
-      catchError(this.handleError)
-    );
-  }
-  getTimelineCountry(country){
-    return this._http.get(`${this.host}/timeline/${country}`).pipe(
-      retry(1),
-      catchError(this.handleError)
-    );
-  }
-  getTimelineGlobal(){
-    return this._http.get(`${this.host}/timeline/global`).pipe(
-      retry(1),
-      catchError(this.handleError)
-    );
-  }
+  // getTimeline(){
+  //   return this._http.get(`${this.host}/timeline`).pipe(
+  //     retry(1),
+  //     catchError(this.handleError)
+  //   );
+  // }
+  // getTimelineCountry(country){
+  //   return this._http.get(`${this.host}/timeline/${country}`).pipe(
+  //     retry(1),
+  //     catchError(this.handleError)
+  //   );
+  // }
+  // getTimelineGlobal(){
+  //   return this._http.get(`${this.host}/timeline/global`).pipe(
+  //     retry(1),
+  //     catchError(this.handleError)
+  //   );
+  // }
 
   handleError(error) {
     let errorMessage = '';

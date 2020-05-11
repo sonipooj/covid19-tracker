@@ -1681,13 +1681,12 @@ export class DashboardComponent implements OnInit, OnDestroy, DoCheck {
 
 
     combineLatest(
-      this._getDataService.getAll(this.sortType),
-      this._getDataService.getTimelineGlobal(),
+      this._getDataService.getAll(),
+      // this._getDataService.getTimelineGlobal(),
       this._getDataService.getSates()
     )
-      .subscribe(([getAllData, getTimelineData, getAllStateData]) => {
+      .subscribe(([getAllData, getAllStateData]) => {
         console.log("getAllData",getAllData)
-        console.log("getTimelineData",getTimelineData)
         this.isLoading = false;
         this.isLoadingCountries = false;
         this.isLoadingMap = false;
@@ -1768,7 +1767,7 @@ export class DashboardComponent implements OnInit, OnDestroy, DoCheck {
           ]
         });
 
-        this.timeLine = getTimelineData;
+        // this.timeLine = getTimelineData;
         this.loadMap("cases");
 
       });
@@ -1785,18 +1784,18 @@ export class DashboardComponent implements OnInit, OnDestroy, DoCheck {
     this.countries = this.fuse.list;
   }
   
-  sortCountries(key, skey) {
-    this.isLoadingCountries = true;
-    this.sortType = key;
-    this.loadSorted();
-  }
+  // sortCountries(key, skey) {
+  //   this.isLoadingCountries = true;
+  //   this.sortType = key;
+  //   this.loadSorted();
+  // }
   
-  loadSorted(){
-    this._getDataService.getAll(this.sortType).subscribe((data: {}) => {
-      this.countries = data;
-      this.isLoadingCountries = false;
-    });
-  }
+  // loadSorted(){
+  //   this._getDataService.getAll(this.sortType).subscribe((data: {}) => {
+  //     this.countries = data;
+  //     this.isLoadingCountries = false;
+  //   });
+  // }
   
 
   loadMap(option) {
@@ -1849,7 +1848,7 @@ export class DashboardComponent implements OnInit, OnDestroy, DoCheck {
     worldSeries.calculateVisualCenter = true;
 
     var worldPolygon = worldSeries.mapPolygons.template;
-    worldPolygon.tooltipText = "{name}\n pooja";
+    worldPolygon.tooltipText = "{name}";
     worldPolygon.nonScalingStroke = true;
     worldPolygon.strokeOpacity = 0.5;
    // worldPolygon.propertyFields.fill = "color";
