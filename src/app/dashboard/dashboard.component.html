@@ -133,28 +133,20 @@
               <div class="infectedCountries" [class.d-none]="isLoadingCountries">
                 <perfect-scrollbar #perfectscrollbar style="height:645px;">
                   <div class="infectedCountry" *ngFor="let country of countries">
-                    <a>
-                      <!-- <div class="infectedCountryFlag">
-                        <img *ngIf="countryCodes[country.country] else unknown" style="height: 30px;
-                      width: 40px;" src="assets/flags/{{countryCodes[country.country].toLowerCase()}}.svg"
-                          alt="{{country.country}}">
-                        <ng-template #unknown>
-                          <img src="assets/flags/unknown.svg" alt="{{country.country}}">
-                        </ng-template>
-                      </div> -->
-                      <h5 class="infectedCountryName mt-0 mb-1" *ngIf="country.country!=='World'">{{country.country}}
-                        <span class="float-right">
-                          <span class="text-blue">{{country.cases}}
-                            {{ 'Home.AffectedCountries.10' | translate }}</span> & <span class="text-danger">{{country.deaths}} {{ 'Home.AffectedCountries.11' | translate }}</span>
-                        </span>
+                    
+                    <a  *ngIf="country.country!=='World'">
+
+                      <h5 class="infectedCountryName mt-0 mb-1">{{country.country}}
                       </h5>
-                      <!-- <p class="infectedCountryDetails font-weight-bold"><span class="text-blue">{{country.cases}}
-                        {{ 'Home.AffectedCountries.10' | translate }}</span> & <span class="text-danger">{{country.deaths}} {{ 'Home.AffectedCountries.11' | translate }}</span></p> -->
+                      <p class="infectedCountryDetails font-weight-bold"><span class="text-blue">{{country.cases}}
+                        {{ 'Home.AffectedCountries.10' | translate }}</span> & <span class="text-danger">{{country.deaths}} {{ 'Home.AffectedCountries.11' | translate }}</span></p>
 
                       <!-- <p class="infectedCountryCases text-blue">+{{country.todayCases}} {{ 'Home.AffectedCountries.10' | translate }}</p>
                       <p class="infectedCountryDeaths text-danger">+{{country.todayDeaths}} {{ 'Home.AffectedCountries.11' | translate }}</p> -->
                     </a>
                   </div>
+
+                  
                 </perfect-scrollbar>
               </div>
             </div>

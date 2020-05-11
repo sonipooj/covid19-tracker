@@ -5,3 +5,9 @@
     min-height: 270px;
     transition: all 0.2s;
   }
+
+  .infectedCountries .infectedCountry:first-child {
+    border: none;
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
