@@ -1705,10 +1705,10 @@ export class DashboardComponent implements OnInit, OnDestroy, DoCheck {
         this.finishedCases = this.totalDeaths + this.totalRecoveries;
 
         //Updating states code
-          for (let key in this.states) {
+        for (let key in this.states) {
             if (this.states.hasOwnProperty(key)) {
               let state = this.states[key];
-              
+
               this.updatedState.push(
                 {
                   id: "IN-"+this.states[key].statecode,
@@ -1719,7 +1719,7 @@ export class DashboardComponent implements OnInit, OnDestroy, DoCheck {
                 });     
             }
           }
-          console.log("==updatedState==================",JSON.stringify(this.updatedState));
+        console.log("==updatedState==================",JSON.stringify(this.updatedState));
 
         this.fuse = new Fuse(this.countries, {
           shouldSort: true,
@@ -1748,7 +1748,29 @@ export class DashboardComponent implements OnInit, OnDestroy, DoCheck {
       });
 
   }
+
+  searchCountries(key) {
+    if (key) {
+      this.countries = this.fuse.search(key);
+      if (isUndefined(this.directiveScroll)) return;
+      this.directiveScroll.directiveRef.scrollToTop()
+      return
+    }
+    this.countries = this.fuse.list;
+  }
   
+  sortCountries(key, skey) {
+    this.isLoadingCountries = true;
+    this.sortType = key;
+    this.loadSorted();
+  }
+  
+  loadSorted(){
+    this._getDataService.getAll(this.sortType).subscribe((data: {}) => {
+      this.countries = data;
+      this.isLoadingCountries = false;
+    });
+  }
   
 
   loadMap(option) {
@@ -1891,7 +1913,7 @@ export class DashboardComponent implements OnInit, OnDestroy, DoCheck {
     countryPolygon.fill = am4core.color("#eee");
 
 // Create hover state and set alternative fill color
-  var hs = countryPolygon.states.create("hover");
+    var hs = countryPolygon.states.create("hover");
     hs.properties.fill = chart.colors.getIndex(9);
 
     console.log("==this.states in map",this.states);
@@ -1953,11 +1975,11 @@ export class DashboardComponent implements OnInit, OnDestroy, DoCheck {
       const  cor_latitude= chart.svgPointToGeo(ev.svgPoint).latitude;
       const  cor_longitude= chart.svgPointToGeo(ev.svgPoint).longitude;
  
-       console.log("clicked location",cor_latitude);
-       console.log("clicked location",cor_longitude);
+      console.log("clicked location",cor_latitude);
+      console.log("clicked location",cor_longitude);
      });
  
-     imageStateTemplate.adapter.add("latitude", function (latitude, target) {
+    imageStateTemplate.adapter.add("latitude", function (latitude, target) {
        let polygon = countrySeries.getPolygonById(target.dataItem.dataContext["id"]);
        console.log("IND-polygon-lat",polygon)
        if (polygon) {
@@ -1967,7 +1989,7 @@ export class DashboardComponent implements OnInit, OnDestroy, DoCheck {
      })
  
      
-     imageStateTemplate.adapter.add("longitude", function (longitude, target) {
+    imageStateTemplate.adapter.add("longitude", function (longitude, target) {
        // console.log("countrySeries.MultiPolygon.template.propertyFields",countrySeries.mapPolygons.template.propertyFields)
        // let polygon = countrySeries.getPolygonById(target.dataItem.dataContext["id"]);
        let polygon = countrySeries.getPolygonById(target.dataItem.dataContext["id"]);
@@ -1982,7 +2004,7 @@ export class DashboardComponent implements OnInit, OnDestroy, DoCheck {
  
 
         // Set up click events
-        worldPolygon.events.on("hit", function (ev) {
+    worldPolygon.events.on("hit", function (ev) {
           ev.target.series.chart.zoomToMapObject(ev.target);
           let map = ev.target.dataItem.dataContext["map"];
           var countryCode = ev.target.dataItem.dataContext["id"];
@@ -2033,11 +2055,6 @@ export class DashboardComponent implements OnInit, OnDestroy, DoCheck {
       countrySeries.hide();
       back.hide();
     });
-
-    
-
-
-
   }
 
   showModal(): void {
