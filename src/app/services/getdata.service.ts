@@ -12,6 +12,7 @@ HttpClient
 export class GetdataService {
  api= "http://ec2-13-127-10-27.ap-south-1.compute.amazonaws.com:4502/bin/getCovidCasesDetails";
  indStateApi="https://api.covid19india.org/state_district_wise.json";
+ indStatUrl="https://covid19-india-adhikansh.herokuapp.com/states";
   constructor(private _http: HttpClient) { }
   private host = "https://api.coronastatistics.live"
 
@@ -33,11 +34,15 @@ export class GetdataService {
   console.log("this.getUser()",this.getUser())
   }
   getSates(){
-    //  return this._http.get('https://covid19-india-adhikansh.herokuapp.com/states');
-    return this._http.get(`${this.indStateApi}`).pipe(
+    return this._http.get(`${this.indStatUrl}`).pipe(
       retry(1),
       catchError(this.handleError)
     );
+
+    // return this._http.get(`${this.indStateApi}`).pipe(
+    //   retry(1),
+    //   catchError(this.handleError)
+    // );
   }
   getAll(type): Observable<Country>{
     return this._http.get<Country>(`${this.host}/countries?sort=${type}`).pipe(

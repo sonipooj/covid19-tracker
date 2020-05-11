@@ -1704,22 +1704,48 @@ export class DashboardComponent implements OnInit, OnDestroy, DoCheck {
         this.casesPer1M = this.calculateSum("casesPerOneMillion");
         this.finishedCases = this.totalDeaths + this.totalRecoveries;
 
+
+
         //Updating states code
         for (let key in this.states) {
-            if (this.states.hasOwnProperty(key)) {
-              let state = this.states[key];
+          console.log("==key in state",key)
+          if (this.states.hasOwnProperty(key)) {
+            let state = this.states[key];
+            console.log("==state[key]",this.states[key])
 
-              this.updatedState.push(
-                {
-                  id: "IN-"+this.states[key].statecode,
-                  name:key,
-                  total:100,
-                  active:40,
-                  deaths:1
-                });     
-            }
+            state.map(item=>{
+              console.log("==item",item);
+                           
+            this.updatedState.push(
+              {
+                id: item._id,
+                name:item.name,
+                total:item.total,
+                active:item.confirmed,
+                deaths:item.death
+              });
+            })
+    
           }
+        }
         console.log("==updatedState==================",JSON.stringify(this.updatedState));
+
+        //Updating states code
+        // for (let key in this.states) {
+        //     if (this.states.hasOwnProperty(key)) {
+        //       let state = this.states[key];
+
+        //       this.updatedState.push(
+        //         {
+        //           id: "IN-"+this.states[key].statecode,
+        //           name:key,
+        //           total:100,
+        //           active:40,
+        //           deaths:1
+        //         });     
+        //     }
+        //   }
+        // console.log("==updatedState==================",JSON.stringify(this.updatedState));
 
         this.fuse = new Fuse(this.countries, {
           shouldSort: true,
@@ -1919,13 +1945,14 @@ export class DashboardComponent implements OnInit, OnDestroy, DoCheck {
     console.log("==this.states in map",this.states);
     console.log("==this.updatedstate in map",this.updatedState);
 
+    //setting values fot tooltip . state api
     let stateMapData = [];
     this.stateFuse.list.forEach(element => {
       console.log("==stateFuse element", element);
       // id: this.stateCodes[element.name],
       if (element != 0) {
         stateMapData.push({
-          id: element.id,
+          id: this.stateCodes[element.name],
           name: element.name,
           total:element.total,
           active: element.active,
@@ -1936,6 +1963,25 @@ export class DashboardComponent implements OnInit, OnDestroy, DoCheck {
       }
     });
     console.log("==stateMapData", stateMapData);
+
+    //setting values fot tooltip . state api
+    // let stateMapData = [];
+    // this.stateFuse.list.forEach(element => {
+    //   console.log("==stateFuse element", element);
+    //   // id: this.stateCodes[element.name],
+    //   if (element != 0) {
+    //     stateMapData.push({
+    //       id: element.id,
+    //       name: element.name,
+    //       total:element.total,
+    //       active: element.active,
+    //       deaths:element.deaths,
+    //       value: 'value',
+    //       color: am4core.color(color)
+    //     });
+    //   }
+    // });
+    // console.log("==stateMapData", stateMapData);
 
 
     ///start Adding for country marker
